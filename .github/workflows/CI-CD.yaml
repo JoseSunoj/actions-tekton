@@ -23,14 +23,31 @@ jobs:
           export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
           kubectl apply --filename https://github.com/tektoncd/dashboard/releases/latest/download/tekton-dashboard-release.yaml
+          kubectl --namespace tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
+
       - name: Verification
         run: |
           kubectl get namespaces
           kubectl get pods --all-namespaces
           kubectl get deployments --all-namespaces
+          
       - uses: jerop/tkn@v0.1.0
-
+      
+      - name: Apply Tasks and Pipeline
+        run: |
+          kubectl apply --filename tekton/hello-world.yaml
+          kubectl apply --filename tekton/good-bye-world.yaml
+          kubectl apply --filename tekton/hello-goodbye-pipeline.yaml
+          
       - name: Show Tekton tasks and pipelines
         run: |
           tkn task list --all-namespaces
           tkn pipeline list --all-namespaces
+      - name: PipelineRun
+        run: |
+          kubectl apply --filename tekton/hello-goodbye-pipeline-run.yaml
+      - name: logs
+        run: |
+           tkn pipelinerun ls
+           tkn pipelinerun logs hello-goodbye-run -f -n default
+
