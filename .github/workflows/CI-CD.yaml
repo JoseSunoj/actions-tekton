@@ -32,7 +32,7 @@ jobs:
         timeout-minutes: 5
         continue-on-error: true
         run: |   
-          kubectl wait --for=condition=ready pod --all
+          kubectl wait --for=condition=Ready pods --all
       - name: Verification
         run: |
           kubectl get namespaces
