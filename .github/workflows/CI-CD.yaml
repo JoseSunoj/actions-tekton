@@ -18,21 +18,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      
+      - uses: engineerd/setup-kind@v0.5.0
+      
       - name: Install jq tool
         run: |
           sudo apt-get update
           sudo apt-get install jq
-      - uses: engineerd/setup-kind@v0.5.0
+          
+      - name: Install Tekton    
       - run: |
           export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
          # kubectl apply --filename https://github.com/tektoncd/dashboard/releases/latest/download/tekton-dashboard-release.yaml
          # kubectl --namespace tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
+      
       - name: Wait for deployments to be ready
         timeout-minutes: 5
         continue-on-error: true
-        run: |   
-          kubectl wait --for=condition=Ready pods --all
+        run: | 
+          kubectl wait --for=condition=READY=True pods --all -n kube-system
+          kubectl wait --for=condition=READY=True pods --all -n tekton-pipelines
+          
       - name: Verification
         run: |
           kubectl get namespaces
@@ -53,6 +60,6 @@ jobs:
           tkn pipeline list --all-namespaces
       - name: PipelineRun and Verification
         run: |
-          PIPELINE_RUN_NAME=$(kubectl create -n tekton-pipelines -f tekton/hello-goodbye-pipeline-run.yaml -o json | jq -r '.metadata.name')
-          kubectl -n tekton-pipelines wait --for=condition=SUCCEEDED=True --timeout=90s pipelineruns.tekton.dev/$PIPELINE_RUN_NAME
+          PIPELINE_RUN_NAME=$(kubectl create -n tekton-pipelines --filename tekton/hello-goodbye-pipeline-run.yaml -o json | jq -r '.metadata.name')
+          kubectl -n tekton-pipelines wait --for=condition=SUCCEEDED=True --timeout=180s pipelineruns.tekton.dev/$PIPELINE_RUN_NAME
           tkn pr --namespace tekton-pipelines logs $PIPELINE_RUN_NAME
