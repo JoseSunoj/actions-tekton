@@ -23,7 +23,7 @@ jobs:
           export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
           kubectl apply --filename https://github.com/tektoncd/dashboard/releases/latest/download/tekton-dashboard-release.yaml
-          kubectl --namespace tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
+         # kubectl --namespace tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
 
       - name: Verification
         run: |
