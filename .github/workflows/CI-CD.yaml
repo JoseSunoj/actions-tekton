@@ -22,6 +22,12 @@ jobs:
       - run: |
           export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+          kubectl apply --filename https://github.com/tektoncd/dashboard/releases/latest/download/tekton-dashboard-release.yaml
+      - name: Verification
+        run: |
+          kubectl get namespaces
+          kubectl get pods --all-namespaces
+          kubectl get deployments --all-namespaces
       - uses: jerop/tkn@v0.1.0
 
       - name: Show Tekton tasks and pipelines
