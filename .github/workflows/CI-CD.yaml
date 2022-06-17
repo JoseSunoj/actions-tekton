@@ -32,7 +32,8 @@ jobs:
         timeout-minutes: 5
         continue-on-error: true
         run: |   
-          kubectl wait --for=condition=AVAILABLE=True --timeout=60s deployments --all-namespaces
+          kubectl rollout status deployment tekton-pipelines-controller
+          kubectl rollout status deployment tekton-pipelines-webhook
       - name: Verification
         run: |
           kubectl get namespaces
@@ -54,5 +55,5 @@ jobs:
       - name: PipelineRun and Verification
         run: |
           PIPELINE_RUN_NAME=$(kubectl create -n tekton-pipelines -f tekton/hello-goodbye-pipeline-run.yaml -o json | jq -r '.metadata.name')
-          kubectl -n tekton-pipelines wait --for=condition=SUCCEEDED=True --timeout=60s pipelineruns.tekton.dev/$PIPELINE_RUN_NAME
+          kubectl -n tekton-pipelines wait --for=condition=SUCCEEDED=True --timeout=90s pipelineruns.tekton.dev/$PIPELINE_RUN_NAME
           tkn pr --namespace tekton-pipelines logs $PIPELINE_RUN_NAME
