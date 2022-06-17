@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install jq
           
       - name: Install Tekton    
-      - run: |
+        run: |
           export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
       
