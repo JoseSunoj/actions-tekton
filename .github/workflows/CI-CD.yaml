@@ -32,7 +32,7 @@ jobs:
         timeout-minutes: 5
         continue-on-error: true
         run: |   
-          kubectl wait --for=condition=READY=True --timeout=60s --all deployments
+          kubectl wait --for=condition=available --timeout=60s --all deployments
       - name: Verification
         run: |
           kubectl get namespaces
