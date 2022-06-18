@@ -73,6 +73,6 @@ jobs:
           tkn pipeline list --all-namespaces
       - name: PipelineRun and Verification
         run: |
-          kubectl apply --filename tekton/hello-goodbye-pipeline.yaml
+          kubectl apply --filename tekton/hello-goodbye-pipeline-run.yaml
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n default
           tkn pipelinerun logs hello-goodbye-run -f -n default
