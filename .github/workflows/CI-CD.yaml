@@ -17,10 +17,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       
-      - uses: engineerd/setup-kind@v0.5.0
+      - name: Create a cluster
+        uses: AbsaOSS/k3d-action@v2
+        with:
+          cluster-name: "test-cluster"
+          args: >-
+            -p "8083:80@agent:0:direct"
+            -p "8443:443@agent:0:direct"
+            -p "5053:53/udp@agent:0:direct"
+            --agents 3
+            --no-lb
+            --image docker.io/rancher/k3s:v1.20.4-k3s1
+            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       
+      - name: Cluster info
+        run: |
+          kubectl cluster-info --context k3d-test-cluster-1
+      - name: Nodes
+        run: |
+          docker ps -a
+          kubectl config use-context k3d-test-cluster-1
+          kubectl get nodes -o wide
+      - name: Network
+        run: docker network inspect k3d-test-cluster-1
+        
       - name: Install jq tool
         run: |
           sudo apt-get update
@@ -28,7 +51,6 @@ jobs:
           
       - name: Install Tekton    
         run: |
-          export KUBECONFIG="$(kind get kubeconfig-path)"
           kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
       
       - name: Wait for deployments to be ready
@@ -37,12 +59,6 @@ jobs:
         run: | 
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n kube-system
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n tekton-pipelines
-          
-      - name: Verification
-        run: |
-          kubectl get namespaces
-          kubectl get pods --all-namespaces
-          kubectl get deployments --all-namespaces
           
       - uses: jerop/tkn@v0.1.0
       
