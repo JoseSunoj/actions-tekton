@@ -30,7 +30,6 @@ jobs:
             -p "5053:53/udp@agent:0:direct"
             --agents 3
             --no-lb
-            --image docker.io/rancher/k3s:v1.20.4-k3s1
             --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       
       - name: Cluster info
