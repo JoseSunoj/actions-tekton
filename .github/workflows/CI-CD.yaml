@@ -35,6 +35,7 @@ jobs:
         timeout-minutes: 5
         continue-on-error: true
         run: | 
+          kubectl wait --for=condition=READY=True --timeout=180s pods --all -n kube-system
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n tekton-pipelines
           
       - name: Verification
