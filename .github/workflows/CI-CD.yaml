@@ -58,8 +58,9 @@ jobs:
         run: | 
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n kube-system
           kubectl wait --for=condition=READY=True --timeout=180s pods --all -n tekton-pipelines
-          
-      - uses: jerop/tkn@v0.1.0
+       
+      - name: Install Tekton CLI 
+        uses: jerop/tkn@v0.1.0
       
       - name: Apply Tasks and Pipeline
         run: |
